@@ -209,3 +209,98 @@ Usuario* iniciarSesion(vector<Usuario> &usuarios) {
     cout << "\nUsuario o contrasena invalido.\n";
     return nullptr;  
 }
+
+
+void mostrarMenu(Usuario &usuario, vector<Usuario> &usuarios, vector<Producto> &productos,
+                 vector<Comentario> &comentarios, vector<CarritoDeCompras> &carritos) {
+    int opcion;
+    string fecha;
+
+    do {
+        cout << "\n===== MENU PRINCIPAL =====\n";
+        cout << "Usuario actual: " << usuario.nombre << endl;
+        cout << "1. Listar productos con bajo stock (<15)\n";
+        cout << "2. Mostrar comentarios desde una fecha\n";
+        cout << "3. Listar usuarios\n";
+        cout << "4. Adicionar productos al carrito\n";
+        cout << "5. Ver productos del carrito\n";
+        cout << "0. Cerrar sesion\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                listarProductosBajoStock(productos);
+                break;
+            case 2:
+                cout << "Ingrese la fecha (dd/mm/aaaa): ";
+                cin >> fecha;
+                listarComentariosDesdeFecha(comentarios, fecha);
+                break;
+            case 3:
+                listarUsuarios(usuarios);
+                break;
+            case 4:
+                agregarAlCarrito(carritos, productos, usuario);
+                break;
+            case 5:
+                listarCarrito(carritos, usuario);
+                break;
+            case 0:
+                cout << "\nCerrando sesion...\n";
+                break;
+            default:
+                cout << "Opcion invalida.\n";
+        }
+
+    } while (opcion != 0);
+}
+
+
+void listarProductosBajoStock(const vector<Producto> &productos) {
+    cout << "\n--- Productos con bajo stock (<15) ---\n";
+    bool hayBajoStock = false;
+    for (auto &p : productos) {
+        if (p.stock < 15) {
+            cout << p.idProducto << " - " << p.nombre 
+                 << " | Stock: " << p.stock 
+                 << " | Precio: " << p.precio << endl;
+            hayBajoStock = true;
+        }
+    }
+    if (!hayBajoStock) {
+        cout << "No hay productos con bajo stock.\n";
+    }
+}
+
+void listarUsuarios(const vector<Usuario> &usuarios) {
+    cout << "\n--- Lista de usuarios ---\n";
+    for (auto &u : usuarios) {
+        string nombreMayus = u.nombre;
+        for (auto &c : nombreMayus) c = toupper(c);
+
+        cout << "ID: " << u.idUsuario
+             << " | NOMBRE: " << nombreMayus
+             << " | CORREO: " << u.correoElectronico
+             << " | DIRECCION: " << u.direccion
+             << " | METODO DE PAGO: " << u.metodoDePago << endl;
+    }
+}
+
+void listarComentariosDesdeFecha(const vector<Comentario> &comentarios, const string &fechaInicio) {
+    cout << "\n--- Comentarios desde " << fechaInicio << " ---\n";
+    bool hayComentarios = false;
+
+    for (auto &c : comentarios) {
+        if (c.fecha >= fechaInicio) { // Comparacion directa de cadenas
+            cout << "[" << c.fecha << "] "
+                 << c.usuario << " sobre " << c.producto << ": "
+                 << c.comentario << endl;
+            hayComentarios = true;
+        }
+    }
+
+    if (!hayComentarios) {
+        cout << "No hay comentarios desde esa fecha.\n";
+    }
+}
