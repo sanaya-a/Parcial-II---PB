@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -210,7 +212,7 @@ Usuario* iniciarSesion(vector<Usuario> &usuarios) {
     return nullptr;  
 }
 
-
+//Nicoll 
 void mostrarMenu(Usuario &usuario, vector<Usuario> &usuarios, vector<Producto> &productos,
                  vector<Comentario> &comentarios, vector<CarritoDeCompras> &carritos) {
     int opcion;
