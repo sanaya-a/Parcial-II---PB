@@ -304,3 +304,127 @@ void listarComentariosDesdeFecha(const vector<Comentario> &comentarios, const st
         cout << "No hay comentarios desde esa fecha.\n";
     }
 }
+
+int generarNuevoIdCarrito(const vector<CarritoDeCompras> &carritos) {
+    if (carritos.empty()) return 1;
+    return carritos.back().idCarrito + 1;
+}
+
+void agregarAlCarrito(vector<CarritoDeCompras> &carritos, vector<Producto> &productos, Usuario &usuario) {
+    int idProducto, cantidad;
+    char continuar = 's';
+    double subtotal = 0.0;
+    double impuestos = 0.0;
+    const double IVA = 0.19;  // 19%
+
+    // Crear un nuevo carrito para el usuario actual
+    CarritoDeCompras nuevoCarrito;
+    nuevoCarrito.idCarrito = generarNuevoIdCarrito(carritos);
+    nuevoCarrito.usuario = usuario;
+
+    do {
+        cout << "\n--- Adicionar producto al carrito ---\n";
+        cout << "Ingrese el ID del producto: ";
+        cin >> idProducto;
+
+        bool encontrado = false;
+        for (auto &p : productos) {
+            if (p.idProducto == idProducto) {
+                encontrado = true;
+                cout << "Producto: " << p.nombre << " | Stock disponible: " << p.stock << endl;
+                cout << "Cantidad a agregar: ";
+                cin >> cantidad;
+
+                if (cantidad <= 0) {
+                    cout << "Cantidad invalida.\n";
+                } else if (cantidad > p.stock) {
+                    cout << "Stock insuficiente.\n";
+                } else {
+                    // Crear producto temporal con la cantidad seleccionada
+                    Producto productoCarrito = p;
+                    productoCarrito.stock = cantidad;
+                    nuevoCarrito.productos.push_back(productoCarrito);
+
+                    // Actualizar subtotal e impuestos
+                    double precioTotal = p.precio * cantidad;
+                    subtotal += precioTotal;
+                    impuestos = subtotal * IVA;
+
+                    // Restar del stock real
+                    p.stock -= cantidad;
+                    cout << "Producto agregado correctamente al carrito.\n";
+                }
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            cout << "No se encontro un producto con ese ID.\n";
+        }
+
+        cout << "Desea agregar otro producto? (s/n): ";
+        cin >> continuar;
+
+    } while (continuar == 's' || continuar == 'S');
+
+    // Guardar totales en el carrito
+    nuevoCarrito.subtotal = subtotal;
+    nuevoCarrito.impuestos = impuestos;
+
+    // Agregar al vector principal
+    carritos.push_back(nuevoCarrito);
+
+    cout << "\nCarrito guardado correctamente (ID: " << nuevoCarrito.idCarrito << ")\n";
+    cout << "Subtotal: " << subtotal << " | Impuestos: " << impuestos << endl;
+}
+
+void listarCarrito(const vector<CarritoDeCompras> &carritos, const Usuario &usuario) {
+    cout << "\n--- Carrito de " << usuario.nombre << " ---\n";
+
+    bool tieneCarrito = false;
+    for (auto &c : carritos) {
+        if (c.usuario.idUsuario == usuario.idUsuario) {
+            tieneCarrito = true;
+            cout << "ID Carrito: " << c.idCarrito << endl;
+            cout << "Productos:\n";
+
+            for (auto &p : c.productos) {
+                cout << "- " << p.nombre 
+                     << " | Cantidad: " << p.stock 
+                     << " | Precio unitario: " << p.precio 
+                     << " | Total: " << p.precio * p.stock << endl;
+            }
+
+            cout << "Subtotal: " << c.subtotal 
+                 << " | Impuestos: " << c.impuestos 
+                 << " | Total: " << c.subtotal + c.impuestos << endl;
+            cout << "----------------------------\n";
+        }
+    }
+
+    if (!tieneCarrito) {
+        cout << "No tienes ningun carrito creado.\n";
+    }
+}
+
+
+int main() {
+    setlocale(LC_ALL, "");
+    vector<Usuario> usuarios;
+    vector<Producto> productos;
+    vector<Comentario> comentarios;
+    vector<CarritoDeCompras> carritos;
+
+    inicializarDatos(usuarios, productos, comentarios);
+
+    Usuario* usuarioActual = iniciarSesion(usuarios);
+
+    if (usuarioActual != nullptr) {
+        mostrarMenu(*usuarioActual, usuarios, productos, comentarios, carritos);
+    } else {
+        cout << "\nFin del programa.\n";
+    }
+
+    return 0;
+}
+
