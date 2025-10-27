@@ -202,6 +202,7 @@ Usuario* iniciarSesion(vector<Usuario> &usuarios) {
     for (auto &u : usuarios) {
         if (u.correoElectronico == correo && u.contrasena == clave) {
             cout << "\nInicio de sesion exitoso. Bienvenido/a, " << u.nombre << "!\n";
+            
             return &u;  
         }
     }
